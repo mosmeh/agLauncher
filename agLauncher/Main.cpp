@@ -177,7 +177,7 @@ void Main() {
 				effect.clear();
 				inDemoMode = false;
 			}
-		} else if (!inDemoMode && Time::GetMillisec() > lastActiveTime + 3 * 1000) {
+		} else if (!inDemoMode && Time::GetMillisec() > lastActiveTime + 30 * 1000) {
 			inDemoMode = true;
 		}
 
