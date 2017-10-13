@@ -1,0 +1,14 @@
+[
+    {
+        "title": "title"
+        "desc": "description",
+        "thumb": "images/a.png",
+        "exec": "apps/a/a.exe"
+    },
+    {
+        "title": "title"
+        "desc": "description",
+        "thumb": "images/b.png",
+        "exec": "apps/b/b.exe"
+    }
+]
