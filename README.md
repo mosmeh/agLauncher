@@ -1,5 +1,4 @@
-agLauncher
------
+# agLauncher
 App launcher designed for game exhibition
-# Requirement
+## Requirement
 Siv3D(August2016v2)
