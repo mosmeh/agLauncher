@@ -112,9 +112,9 @@ void LauncherScene::update() {
         }
 
         if (!effect.hasEffects()) {
-            if ((Input::KeyEnter | Input::KeySpace).clicked ||
-                (Input::MouseL.clicked && mouseRegion == Region::Center) ||
-                (gp.has_value() && (gp->button(0) | gp->button(1) | gp->button(2) | gp->button(3)).clicked)) {
+            if ((Input::KeyEnter | Input::KeySpace).released ||
+                (Input::MouseL.released && mouseRegion == Region::Center) ||
+                (gp.has_value() && (gp->button(0) | gp->button(1) | gp->button(2) | gp->button(3)).released)) {
                 games.at(selectedGameIndex.get()).launch();
                 stopwatch.start();
             }
