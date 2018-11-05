@@ -2,6 +2,41 @@
 
 namespace ag {
 
+constexpr int timerPeriodMin = 30;
+constexpr bool timerEnabled = true;
+
+static Optional<Gamepad> getGamepad() {
+    const auto pads = Input::EnumerateGamepads();
+    if (pads.empty()) {
+        return none;
+    }
+    return Gamepad(pads.front().index);
+}
+
+static bool userIsActive() {
+    if (Input::AnyKeyPressed()) {
+        return true;
+    }
+
+    if (Mouse::Delta() != Point::Zero || Input::MouseL.pressed || Input::MouseR.pressed || Input::MouseM.pressed) {
+        return true;
+    }
+
+    const auto gp = getGamepad();
+    if (gp.has_value()) {
+        if (gp->povLeft.pressed || gp->povRight.pressed || gp->povBackward.pressed || gp->povForward.pressed) {
+            return true;
+        }
+        for (s3d::uint32 i = 0; i < gp->num_buttons; ++i) {
+            if (gp->button(i).pressed) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 LauncherScene::LauncherScene() :
     font(34),
     background(L"/200"),
@@ -106,7 +141,7 @@ void LauncherScene::update() {
             }
         }
 
-        if (stopwatch.min() >= 30) {
+        if (stopwatch.min() >= timerPeriodMin) {
             changeScene(SceneKey::BreakSuggestion);
             return;
         }
@@ -117,7 +152,9 @@ void LauncherScene::update() {
                 (gp.has_value() && (gp->button(0) | gp->button(1) | gp->button(2) | gp->button(3)).released)) {
                 Window::Minimize();
                 games.at(selectedGameIndex.get()).launch();
-                stopwatch.start();
+                if (timerEnabled) {
+                    stopwatch.start();
+                }
             }
         }
     }
@@ -161,12 +198,12 @@ void LauncherScene::update() {
     Rect({ 0, 0.768 * height }, { width, 0.231 * height }).draw(AlphaF(0.9));
 
     // description - line
-    Line({ 0, 0.768 * height }, { width, 0.768 * height }).draw(0.00488 * height, Color(0, 162, 154));
+    Line({ 0, 0.768 * height }, { width, 0.768 * height }).draw(0.00488 * height, Color(255, 119, 5));
 
     // description - text
     std::vector<String> descLines;
     if (processRunning) {
-        descLines = { L"ï¿½ï¿½ï¿½ÌƒQï¿½[ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½", L"ï¿½ï¿½ï¿½ÌƒQï¿½[ï¿½ï¿½ï¿½ï¿½Vï¿½Ô‚É‚ÍAï¿½ï¿½ï¿½ÌƒQï¿½[ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" };
+        descLines = { L"‚±‚ÌƒQ[ƒ€‚ğ‹N“®’†‚Å‚·", L"‘¼‚ÌƒQ[ƒ€‚ğ—V‚Ô‚É‚ÍA‚±‚ÌƒQ[ƒ€‚ğI—¹‚µ‚Ä‚­‚¾‚³‚¢" };
     } else {
         descLines = selectedGame.desc.split(L'\n');
     }
@@ -178,10 +215,11 @@ void LauncherScene::update() {
 
     font(selectedGameIndex.get() + 1, L"/", games.size()).drawCenter({ 0.9 * width, 0.7 * height }, Palette::Black);
 
-    font(Pad(stopwatch.min(), { 2, L'0' }), L":", Pad(stopwatch.s() % 60, { 2, L'0' })).drawCenter({ 0.1 * width, 0.1 * height }, Palette::Black);
+    if (timerEnabled) {
+        font(Pad(stopwatch.min(), { 2, L'0' }), L":", Pad(stopwatch.s() % 60, { 2, L'0' })).drawCenter({ 0.1 * width, 0.1 * height }, Palette::Black);
+    }
 }
 
 void LauncherScene::draw() const {}
 
 }
-

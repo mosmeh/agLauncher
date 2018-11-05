@@ -122,38 +122,6 @@ private:
     bool inDemoMode;
     s3d::uint32 lastActiveTime;
     Stopwatch stopwatch;
-
-    Optional<Gamepad> getGamepad() const {
-        const auto pads = Input::EnumerateGamepads();
-        if (pads.empty()) {
-            return none;
-        }
-        return Gamepad(pads.front().index);
-    }
-
-    bool userIsActive() {
-        if (Input::AnyKeyPressed()) {
-            return true;
-        }
-
-        if (Mouse::Delta() != Point::Zero || Input::MouseL.pressed || Input::MouseR.pressed || Input::MouseM.pressed) {
-            return true;
-        }
-
-        const auto gp = getGamepad();
-        if (gp.has_value()) {
-            if (gp->povLeft.pressed || gp->povRight.pressed || gp->povBackward.pressed || gp->povForward.pressed) {
-                return true;
-            }
-            for (s3d::uint32 i = 0; i < gp->num_buttons; ++i) {
-                if (gp->button(i).pressed) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 };
 
 }
