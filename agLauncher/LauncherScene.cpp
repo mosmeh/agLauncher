@@ -29,11 +29,6 @@ void LauncherScene::update() {
 
     auto& selectedGame = games.at(selectedGameIndex.get());
     const bool processRunning = selectedGame.process && selectedGame.process->isRunning();
-    if (processRunning) {
-        Window::Minimize();
-    } else {
-        Window::Maximize();
-    }
 
     if (userIsActive() || processRunning) {
         lastActiveTime = Time::GetMillisec();
@@ -57,7 +52,12 @@ void LauncherScene::update() {
 
     const auto gp = getGamepad();
 
-    if (!processRunning) {
+    if (processRunning) {
+        if (!Window::Focused()) {
+            Window::Minimize();
+        }
+    } else {
+        Window::Maximize();
         if (Window::Focused()) {
             if (!effect.hasEffects()) {
                 int delta = 0;
@@ -115,6 +115,7 @@ void LauncherScene::update() {
             if ((Input::KeyEnter | Input::KeySpace).released ||
                 (Input::MouseL.released && mouseRegion == Region::Center) ||
                 (gp.has_value() && (gp->button(0) | gp->button(1) | gp->button(2) | gp->button(3)).released)) {
+                Window::Minimize();
                 games.at(selectedGameIndex.get()).launch();
                 stopwatch.start();
             }
@@ -163,7 +164,12 @@ void LauncherScene::update() {
     Line({ 0, 0.768 * height }, { width, 0.768 * height }).draw(0.00488 * height, Color(0, 162, 154));
 
     // description - text
-    const auto descLines = selectedGame.desc.split(L'\n');
+    std::vector<String> descLines;
+    if (processRunning) {
+        descLines = { L"���̃Q�[����N�����ł�", L"���̃Q�[����V�Ԃɂ́A���̃Q�[����I�����Ă�������" };
+    } else {
+        descLines = selectedGame.desc.split(L'\n');
+    }
     double p = (0.77 + (1.0 - 0.77) / (descLines.size() + 1)) * height;
     for (const auto& line : descLines) {
         font.drawCenter(line, { 0.5 * width, p }, Palette::Black);
